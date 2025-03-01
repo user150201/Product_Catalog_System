@@ -13,12 +13,14 @@
        </div>
        <div class="form-group">
            <label for="Price">Price</label>
-           <input type="number" class="form-control" asp-for="Price" />
+        <input type="number" class="form-control" asp-for="Price" step="0.01" />
        </div>
     <div class="form-group">
-        <label for="SerialNumber">Serial No.</label>
-        <input type="text" class="form-control" asp-for="SerialNumber" />
+        <label for="SerialNumber">Serial Number</label>
+        <input type="text" name="serialNumberName" class="form-control"
+               value="@Model.SerialNumber?.Name" />
     </div>
+
     <div class="form-group">
         <label for="CategoryId">Category</label>
         <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control"></select>

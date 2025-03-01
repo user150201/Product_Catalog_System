@@ -62,7 +62,9 @@ namespace MyApp.Controllers
         {
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
 
-            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+            var item = await _context.Items
+                .Include(i => i.SerialNumber)
+                .FirstOrDefaultAsync(x => x.Id == id);
             return View(item);
         }
 
@@ -89,12 +91,20 @@ namespace MyApp.Controllers
                     existingItem.Price = item.Price;
                     existingItem.CategoryId = item.CategoryId;
 
-                    // Check if the item already has a SerialNumber
+                    // Check if SerialNumber exists and update it
                     if (existingItem.SerialNumber != null)
                     {
-                        // Update existing SerialNumber
-                        existingItem.SerialNumber.Name = serialNumberName;
-                        _context.SerialNumbers.Update(existingItem.SerialNumber);
+                        if (!string.IsNullOrEmpty(serialNumberName))
+                        {
+                            existingItem.SerialNumber.Name = serialNumberName;
+                            _context.SerialNumbers.Update(existingItem.SerialNumber);
+                        }
+                        else
+                        {
+                            // If serialNumberName is empty, remove the SerialNumber
+                            _context.SerialNumbers.Remove(existingItem.SerialNumber);
+                            existingItem.SerialNumber = null;
+                        }
                     }
                     else if (!string.IsNullOrEmpty(serialNumberName))
                     {
@@ -124,6 +134,7 @@ namespace MyApp.Controllers
         }
 
 
+
         // Helper function to check if item exists
         private bool ItemExists(int id)
         {
@@ -134,7 +145,8 @@ namespace MyApp.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == id);
+            var item = await _context.Items
+                .FirstOrDefaultAsync(x => x.Id == id);
             return View(item);
         }
 
